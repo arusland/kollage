@@ -9,9 +9,10 @@ class ImageMask(
     val width: Int,
     val height: Int
 ) {
-
     fun isSet(x: Int, y: Int): Boolean {
-        check(x in 0 until width && y in 0 until height) { "Coordinate is out of bound ${width}x${height}" }
+        if (!(x in 0 until width && y in 0 until height)) {
+            return false
+        }
 
         return maskMap["${x}.$y"] ?: false
     }
@@ -19,7 +20,7 @@ class ImageMask(
     companion object {
         private val log = LoggerFactory.getLogger(ImageMask::class.java)!!
 
-        fun fromImage(image: BufferedImage, maskColor: Color): ImageMask {
+        fun fromImage(image: BufferedImage, maskColor: Color = Color.BLACK): ImageMask {
             val rgbColor = maskColor.rgb
             val mask = mutableMapOf<String, Boolean>()
             val width = image.getWidth(null)
