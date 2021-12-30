@@ -18,18 +18,23 @@ object MainApp {
     private fun testKollage() {
         val scale = 50
         val font = Font("aZZ BB Tribute Cyr", Font.PLAIN, 100)
-        val maskImage = ImageUtil.createImageByText("П", font, Color.BLACK)
-        val imageMask = ImageMask.fromImage(maskImage)
+        val maskImage = ImageUtil.createImageByText("Р", font, Color.BLACK)
+        val imageMask = ImageMask.fromImage(maskImage).calcBorders()
         val out = BufferedImage(maskImage.width * scale, maskImage.height * scale, BufferedImage.TYPE_INT_RGB)
         val g2d = out.createGraphics()
         g2d.color = Color.WHITE
-        g2d.fillRect(0,0, out.width, out.height)
+        g2d.fillRect(0, 0, out.width, out.height)
         val collage = CollageImage(out, scale)
         val imageSet = ImageSet.fromDir(File("/home/ruslan/Downloads/Telega"), scale)
+        val border = BufferedImage(scale, scale, BufferedImage.TYPE_INT_RGB)
 
         for (x in 0 until imageMask.width) {
             for (y in 0 until imageMask.height) {
-                if (imageMask.isSet(x, y)) {
+                val coord = Coord(x, y)
+
+                if (imageMask.isBorder(coord)) {
+                    collage.drawImage(x, y, border)
+                } else if (imageMask.isSet(coord)) {
                     collage.drawImage(x, y, imageSet.nextImage())
                 }
             }
