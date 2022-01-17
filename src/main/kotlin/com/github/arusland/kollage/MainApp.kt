@@ -19,14 +19,16 @@ object MainApp {
         val scale = 50
         val font = Font("aZZ BB Tribute Cyr", Font.PLAIN, 100)
         val maskImage = ImageUtil.createImageByText("Р", font, Color.BLACK)
-        val imageMask = ImageMask.fromImage(maskImage).calcBorders()
+        val imageMask = ImageMask.fromImage(maskImage).findInners(listOf(2, 4))
         val out = BufferedImage(maskImage.width * scale, maskImage.height * scale, BufferedImage.TYPE_INT_RGB)
         val g2d = out.createGraphics()
         g2d.color = Color.WHITE
         g2d.fillRect(0, 0, out.width, out.height)
         val collage = CollageImage(out, scale)
-        val imageSet = ImageSet.fromDir(File("/home/ruslan/Downloads/Telega"), scale)
+        val sizes = imageMask.calcSizes.map { it * scale }
+        val imageSet = ImageSet.fromDir(File("/home/ruslan/Downloads/Telega"), sizes)
         val border = BufferedImage(scale, scale, BufferedImage.TYPE_INT_RGB)
+        val alreadyRendered = mutableSetOf<Coord>()
 
         for (x in 0 until imageMask.width) {
             for (y in 0 until imageMask.height) {
@@ -34,8 +36,22 @@ object MainApp {
 
                 if (imageMask.isBorder(coord)) {
                     collage.drawImage(x, y, border)
-                } else if (imageMask.isSet(coord)) {
-                    collage.drawImage(x, y, imageSet.nextImage())
+                } else {
+                    val rect = imageMask.getRect(coord)
+
+                    if (rect != null) {
+                        val leftPoint = if (rect.isEmpty()) coord else rect.coord
+
+                        if (!alreadyRendered.contains(leftPoint)) {
+                            alreadyRendered.add(leftPoint)
+
+                            collage.drawImage(
+                                leftPoint.x,
+                                leftPoint.y,
+                                imageSet.nextImage(if (rect.isEmpty()) scale else rect.size * scale)
+                            )
+                        }
+                    }
                 }
             }
         }

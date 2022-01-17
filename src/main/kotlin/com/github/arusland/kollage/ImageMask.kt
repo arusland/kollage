@@ -8,16 +8,21 @@ class ImageMask(
     private val maskMap: Map<Coord, CoordRect>,
     val width: Int,
     val height: Int,
-    private val borders: Set<Coord> = emptySet()
+    private val borders: Set<Coord> = emptySet(),
+    val calcSizes: Set<Int> = emptySet()
 ) {
     fun isSet(x: Int, y: Int) = isSet(Coord(x, y))
 
     fun isSet(coord: Coord): Boolean {
+       return getRect(coord) != null
+    }
+
+    fun getRect(coord: Coord): CoordRect? {
         if (!(coord.x in 0 until width && coord.y in 0 until height)) {
-            return false
+            return null
         }
 
-        return maskMap[coord] != null
+        return maskMap[coord]
     }
 
     fun isBorder(x: Int, y: Int): Boolean = isBorder(Coord(x, y))
@@ -43,23 +48,34 @@ class ImageMask(
      *  Creates new ImageMask with calculated inner squares
      */
     fun findInners(sizes: List<Int>): ImageMask {
-        val mask = if (borders.isNotEmpty()) this else calcBorders()
+        val withBorders = if (borders.isNotEmpty()) this else calcBorders()
         var sizeIndex = -1
-        val newMaskMap = maskMap.toMutableMap()
+        val newMaskMap = withBorders.maskMap.toMutableMap()
+        val calcSizes = mutableSetOf(1)
 
         maskMap.keys.forEach { coord ->
-            val nextSize = sizes[++sizeIndex % sizes.size]
-            val nextRect = CoordRect(coord, nextSize)
+            var tryCount = 0
 
-            if (tryPlaceRect(nextRect, newMaskMap)) {
-                TODO()
+            while (tryCount++ < sizes.size) {
+                val nextSize = sizes[++sizeIndex % sizes.size]
+                val nextRect = CoordRect(coord, nextSize)
+
+                if (withBorders.tryPlaceRect(nextRect, newMaskMap)) {
+                    calcSizes.add(nextSize)
+                    break
+                }
             }
         }
 
-        return ImageMask(newMaskMap, width, height, borders)
+        return ImageMask(newMaskMap, width, height, withBorders.borders, calcSizes)
     }
 
-    fun tryPlaceRect(rect: CoordRect, maskMap: MutableMap<Coord, CoordRect>): Boolean {
+    /**
+     * Try to place rect on the free mask space
+     *
+     * Returns true if success
+     */
+    private fun tryPlaceRect(rect: CoordRect, maskMap: MutableMap<Coord, CoordRect>): Boolean {
         val right = rect.coord.x + rect.size - 1
         val bottom = rect.coord.y + rect.size - 1
         val coords = mutableListOf<Coord>()
