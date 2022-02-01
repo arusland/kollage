@@ -18,7 +18,7 @@ object MainApp {
     private fun testKollage() {
         val scale = 50
         val font = Font("aZZ BB Tribute Cyr", Font.PLAIN, 100)
-        val maskImage = ImageUtil.createImageByText("Р", font, Color.BLACK)
+        val maskImage = ImageUtil.createImageByText("ПРИ", font, Color.BLACK)
         val imageMask = ImageMask.fromImage(maskImage).findInners(listOf(2, 4))
         val out = BufferedImage(maskImage.width * scale, maskImage.height * scale, BufferedImage.TYPE_INT_RGB)
         val g2d = out.createGraphics()

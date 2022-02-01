@@ -7,12 +7,36 @@ import java.util.*
 import javax.imageio.ImageIO
 
 class ImageSet(private val images: Map<Int, List<Image>>) {
-    private val random = Random(42)
+    private val random = Random(100)
+    private val alreadyGotIndexes = mutableMapOf<Int, MutableSet<Int>>()
 
     fun nextImage(size: Int): Image {
         val list = images[size] ?: throw IllegalStateException("Unknown size: $size")
+        val nextIndex = nextImageIndex(size, list.size)
 
-        return list[Math.abs(random.nextInt()) % list.size]
+        return list[nextIndex]
+    }
+
+    /**
+     * Returns random index but not repeat previous indexes
+     */
+    private fun nextImageIndex(size: Int, listSize: Int): Int {
+        val set = alreadyGotIndexes.getOrPut(size) { mutableSetOf() }
+
+        if (set.size >= listSize) {
+            // all indexes are got, reset set
+            log.debug("Reset image index set for size: {}", size)
+            set.clear()
+        }
+
+        while (true) {
+            val nextIndex = Math.abs(random.nextInt()) % listSize
+
+            if (!set.contains(nextIndex)) {
+                set.add(nextIndex)
+                return nextIndex
+            }
+        }
     }
 
     companion object {
