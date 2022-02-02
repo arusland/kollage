@@ -16,9 +16,24 @@ object MainApp {
     }
 
     private fun testKollage() {
-        val scale = 50
-        val font = Font("aZZ BB Tribute Cyr", Font.PLAIN, 100)
-        val maskImage = ImageUtil.createImageByText("ПРИ", font, Color.BLACK)
+        val scale = 25
+
+        listOf(
+            "damn_noisy_kids_rus",
+            "Marvin",
+            "Kashima RUS by Cop",
+            "AA Magnum",
+            "aZZ BB Tribute Cyr",
+            "HondaC"
+        ).subList(0, 1)
+            .forEach { fontName ->
+                renderCollage("ПЫХОДУ\nПА ЛЕНК", scale, fontName)
+            }
+    }
+
+    private fun renderCollage(text: String, scale: Int, fontName: String) {
+        val font = Font(fontName, Font.PLAIN, 100)
+        val maskImage = ImageUtil.createImageByText(text, font, Color.BLACK)
         val imageMask = ImageMask.fromImage(maskImage).findInners(listOf(2, 4))
         val out = BufferedImage(maskImage.width * scale, maskImage.height * scale, BufferedImage.TYPE_INT_RGB)
         val g2d = out.createGraphics()
@@ -56,7 +71,7 @@ object MainApp {
             }
         }
 
-        ImageIO.write(out, "png", File("kollage.png"))
+        ImageIO.write(out, "png", File("kollage_$fontName.png"))
     }
 
     private fun testCreateImageByText() {
