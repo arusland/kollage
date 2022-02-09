@@ -1,12 +1,10 @@
 package com.github.arusland.kollage
 
-import java.awt.Color
-import java.awt.Font
-import java.awt.Graphics2D
-import java.awt.GraphicsEnvironment
+import java.awt.*
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
+import kotlin.random.Random
 
 
 object MainApp {
@@ -16,7 +14,7 @@ object MainApp {
     }
 
     private fun testKollage() {
-        val scale = 25
+        val scale = 50
 
         listOf(
             "damn_noisy_kids_rus",
@@ -34,11 +32,13 @@ object MainApp {
     private fun renderCollage(text: String, scale: Int, fontName: String) {
         val font = Font(fontName, Font.PLAIN, 100)
         val maskImage = ImageUtil.createImageByText(text, font, Color.BLACK)
-        val imageMask = ImageMask.fromImage(maskImage).findInners(listOf(2, 4))
+        val imageMask = ImageMask.fromImage(maskImage).findInners(listOf(2, 4, 6))
         val out = BufferedImage(maskImage.width * scale, maskImage.height * scale, BufferedImage.TYPE_INT_RGB)
         val g2d = out.createGraphics()
         g2d.color = Color.WHITE
         g2d.fillRect(0, 0, out.width, out.height)
+        renderBackground(g2d, out.width, out.height)
+
         val collage = CollageImage(out, scale)
         val sizes = imageMask.calcSizes.map { it * scale }
         val imageSet = ImageSet.fromDir(File("/home/ruslan/Downloads/Telega"), sizes)
@@ -72,6 +72,27 @@ object MainApp {
         }
 
         ImageIO.write(out, "png", File("kollage_$fontName.png"))
+
+        val resized = ImageUtil.resizeImage(out, out.width / 2, out.height / 2)
+        ImageIO.write(resized, "png", File("kollage_${fontName}_small.png"))
+    }
+
+    private fun renderBackground(g2d: Graphics2D, width: Int, height: Int) {
+        g2d.stroke = BasicStroke(5f)
+        val colors = listOf(Color.GRAY, Color.RED, Color.GREEN)
+
+        val random = Random(1444)
+
+        for (i in 1..100) {
+            g2d.color = colors.get(Math.abs(random.nextInt() % colors.size))
+
+            g2d.drawLine(
+                Math.abs(random.nextInt() % width),
+                Math.abs(random.nextInt() % height),
+                Math.abs(random.nextInt() % width),
+                Math.abs(random.nextInt() % height)
+            )
+        }
     }
 
     private fun testCreateImageByText() {
