@@ -14,7 +14,7 @@ class ImageMask(
     fun isSet(x: Int, y: Int) = isSet(Coord(x, y))
 
     fun isSet(coord: Coord): Boolean {
-       return getRect(coord) != null
+        return getRect(coord) != null
     }
 
     fun getRect(coord: Coord): CoordRect? {
@@ -49,20 +49,17 @@ class ImageMask(
      */
     fun findInners(sizes: List<Int>): ImageMask {
         val withBorders = if (borders.isNotEmpty()) this else calcBorders()
-        var sizeIndex = -1
         val newMaskMap = withBorders.maskMap.toMutableMap()
         val calcSizes = mutableSetOf(1)
+        val sortedSizes = sizes.sortedDescending()
 
         maskMap.keys.forEach { coord ->
-            var tryCount = 0
-
-            while (tryCount++ < sizes.size) {
-                val nextSize = sizes[++sizeIndex % sizes.size]
+            sortedSizes.forEach { nextSize ->
                 val nextRect = CoordRect(coord, nextSize)
 
                 if (withBorders.tryPlaceRect(nextRect, newMaskMap)) {
                     calcSizes.add(nextSize)
-                    break
+                    return@forEach
                 }
             }
         }
