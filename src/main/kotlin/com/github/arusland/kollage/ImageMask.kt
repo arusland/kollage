@@ -52,20 +52,18 @@ class ImageMask(
         val newMaskMap = withBorders.maskMap.toMutableMap()
         val calcSizes = mutableSetOf(1)
         val sortedSizes = sizes.sortedDescending()
-        var placedImage = 0
+        val allCoords = maskMap.keys.toList().shuffled()
 
-        maskMap.keys.forEach { coord ->
-            sortedSizes.forEach { nextSize ->
-                val nextRect = CoordRect(coord, nextSize)
+        allCoords.forEach { coord ->
+            run loop@{
+                sortedSizes.forEach { nextSize ->
+                    val nextRect = CoordRect(coord, nextSize)
 
-                if (withBorders.tryPlaceRect(nextRect, newMaskMap)) {
-                    calcSizes.add(nextSize)
-                    return@forEach
+                    if (withBorders.tryPlaceRect(nextRect, newMaskMap)) {
+                        calcSizes.add(nextSize)
+                        return@loop
+                    }
                 }
-            }
-
-            if (++placedImage > 50) {
-                return@forEach
             }
         }
 
