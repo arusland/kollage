@@ -45,6 +45,7 @@ object MainApp {
         val imageSet = ImageSet.fromDir(File("/home/ruslan/Downloads/Telega"), sizes)
         val border = BufferedImage(scale, scale, BufferedImage.TYPE_INT_RGB)
         val alreadyRendered = mutableSetOf<Coord>()
+        val sizeStats = mutableMapOf<Int, Int>()
 
         for (x in 0 until imageMask.width) {
             for (y in 0 until imageMask.height) {
@@ -60,6 +61,7 @@ object MainApp {
 
                         if (!alreadyRendered.contains(leftPoint)) {
                             alreadyRendered.add(leftPoint)
+                            sizeStats[rect.size] = sizeStats.getOrDefault(rect.size, 0) + 1
 
                             collage.drawImage(
                                 leftPoint.x,
@@ -71,6 +73,8 @@ object MainApp {
                 }
             }
         }
+
+        sizeStats.forEach{ x -> println("Size ${x.key}: ${x.value}")}
 
         val targetFile = File("kollage_$fontName.png")
         log.debug("Writing result into ${targetFile.absoluteFile}")
