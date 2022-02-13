@@ -25,7 +25,7 @@ object MainApp {
             "HondaC"
         ).subList(0, 1)
             .forEach { fontName ->
-                renderCollage("ПЫХОДУ\nПА ЛЕНК", scale, fontName)
+                renderCollage("ВЫХОДИ\nЗА МЕНЯ", scale, fontName)
             }
     }
 
@@ -60,18 +60,20 @@ object MainApp {
                         if (!alreadyRendered.contains(leftPoint)) {
                             alreadyRendered.add(leftPoint)
 
-                            collage.drawImage(
-                                leftPoint.x,
-                                leftPoint.y,
-                                imageSet.nextImage(if (rect.isEmpty()) scale else rect.size * scale)
-                            )
+                            if (!rect.isEmpty()) {
+                                collage.drawImage(
+                                    leftPoint.x,
+                                    leftPoint.y,
+                                    imageSet.nextImage(if (rect.isEmpty()) scale else rect.size * scale)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
 
-        ImageIO.write(out, "png", File("kollage_$fontName.png"))
+        //ImageIO.write(out, "png", File("kollage_$fontName.png"))
 
         val resized = ImageUtil.resizeImage(out, out.width / 2, out.height / 2)
         ImageIO.write(resized, "png", File("kollage_${fontName}_small.png"))
@@ -79,7 +81,7 @@ object MainApp {
 
     private fun renderBackground(g2d: Graphics2D, width: Int, height: Int) {
         g2d.stroke = BasicStroke(5f)
-        val colors = listOf(Color.GRAY, Color.RED, Color.GREEN)
+        val colors = listOf(Color.GRAY, Color.BLUE, Color.GREEN)
 
         val random = Random(1444)
 

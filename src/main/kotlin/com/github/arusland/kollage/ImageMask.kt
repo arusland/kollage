@@ -52,6 +52,7 @@ class ImageMask(
         val newMaskMap = withBorders.maskMap.toMutableMap()
         val calcSizes = mutableSetOf(1)
         val sortedSizes = sizes.sortedDescending()
+        var placedImage = 0
 
         maskMap.keys.forEach { coord ->
             sortedSizes.forEach { nextSize ->
@@ -61,6 +62,10 @@ class ImageMask(
                     calcSizes.add(nextSize)
                     return@forEach
                 }
+            }
+
+            if (++placedImage > 50) {
+                return@forEach
             }
         }
 
