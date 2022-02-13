@@ -1,5 +1,6 @@
 package com.github.arusland.kollage
 
+import org.slf4j.LoggerFactory
 import java.awt.*
 import java.awt.image.BufferedImage
 import java.io.File
@@ -71,10 +72,16 @@ object MainApp {
             }
         }
 
-        ImageIO.write(out, "png", File("kollage_$fontName.png"))
+        val targetFile = File("kollage_$fontName.png")
+        log.debug("Writing result into ${targetFile.absoluteFile}")
+
+        ImageIO.write(out, "png", targetFile)
 
         val resized = ImageUtil.resizeImage(out, out.width / 2, out.height / 2)
-        ImageIO.write(resized, "png", File("kollage_${fontName}_small.png"))
+        val targetSmallFile = File("kollage_${fontName}_small.png")
+        log.debug("Writing resized result into ${targetSmallFile.absoluteFile}")
+
+        ImageIO.write(resized, "png", targetSmallFile)
     }
 
     private fun renderBackground(g2d: Graphics2D, width: Int, height: Int) {
@@ -169,4 +176,6 @@ object MainApp {
 
         return font
     }
+
+    private val log = LoggerFactory.getLogger(MainApp::class.java)!!
 }
